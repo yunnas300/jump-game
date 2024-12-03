@@ -1,0 +1,23 @@
+using NUnit.Framework;
+using UnityEngine;
+
+public class PlayerControllerForingTests
+{
+    [Test]
+    public void Dead_PlayerDiesWhenHitWall()
+    {
+        var playerObject = new GameObject("Player");
+        var playerController = playerObject.AddComponent<PlayerController>();
+        playerController.Dead = new UnityEvent();
+
+        bool deathEventTriggered = false;
+        playerController.Dead.AddListener(() => deathEventTriggered = true);
+
+        var wallObject = new GameObject("PlatformWall");
+        wallObject.AddComponent<Collider2D>();
+
+        playerController.OnCollisionEnter2D(new Collision2D());
+
+        Assert.IsTrue(deathEventTriggered);
+    }
+}
