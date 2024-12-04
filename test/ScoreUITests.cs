@@ -1,17 +1,31 @@
 using NUnit.Framework;
+using Moq;
 using TMPro;
-using UnityEngine;
 
 public class ScoreUITests
 {
-    [Test]
-    public void IncreaseScore_ScoreIncreasesByOne()
+    private ScoreUI _scoreUI;
+    private Mock<TextMeshProUGUI> _mockField;
+
+    [SetUp]
+    public void SetUp()
     {
-        var scoreUIObject = new GameObject("ScoreUI");
-        var scoreUI = scoreUIObject.AddComponent<ScoreUI>();
-        var textComponent = scoreUIObject.AddComponent<TextMeshProUGUI>();
-        scoreUI._field = textComponent;
-        scoreUI.IncreaseScore();
-        Assert.AreEqual(1, int.Parse(scoreUI._field.text));
+        GameObject uiObject = new GameObject();
+        _scoreUI = uiObject.AddComponent<ScoreUI>();
+
+        _mockField = new Mock<TextMeshProUGUI>();
+        _scoreUI.GetType()
+            .GetField("_field", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            .SetValue(_scoreUI, _mockField.Object);
+    }
+
+    [Test]
+    public void IncreaseScore_ShouldIncrementScoreAndUpdateUI()
+    {
+        // Act
+        _scoreUI.IncreaseScore();
+
+        // Assert
+        _mockField.VerifySet(field => field.text = "1", Times.Once);
     }
 }
